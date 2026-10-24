@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.py[cod]
+*.so
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment / secrets (only the .env.example templates are committed)
+.env
+.env.*
+!.env.example
+
+# Django
+*.sqlite3
+*.log
+staticfiles/
+media/
+
+# Node / React
+node_modules/
+Frontend/build/
+npm-debug.log*
+
+# Windows download metadata
+*:Zone.Identifier
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

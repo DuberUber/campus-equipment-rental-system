@@ -1,0 +1,2182 @@
+openapi: 3.0.3
+info:
+  title: Campus Equipment Rental System API
+  version: 1.0.0
+  description: Lab and sports equipment, availability checks, reservations and overdue
+    returns.
+paths:
+  /api/auth/logout/:
+    post:
+      operationId: api_auth_logout_create
+      description: Revoke the caller's API token.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/auth/me/:
+    get:
+      operationId: api_auth_me_retrieve
+      description: The signed-in user's own profile.
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
+    patch:
+      operationId: api_auth_me_partial_update
+      description: The signed-in user's own profile.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCurrentUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCurrentUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCurrentUser'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentUser'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: api_auth_register_create
+      description: Create a student account and return an API token for it.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Registration'
+          description: ''
+  /api/auth/token/:
+    post:
+      operationId: api_auth_token_create
+      description: Exchange a username and password for an API token.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthToken'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+          description: ''
+  /api/categories/:
+    get:
+      operationId: api_categories_list
+      parameters:
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - lab
+          - sports
+        description: |-
+          * `lab` - Lab
+          * `sports` - Sports
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: slug
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryList'
+          description: ''
+    post:
+      operationId: api_categories_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/categories/{id}/:
+    get:
+      operationId: api_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: api_categories_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: api_categories_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: api_categories_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/equipment/:
+    get:
+      operationId: api_equipment_list
+      description: 'The equipment catalogue: everyone signed in browses it, desk staff
+        maintain it.'
+      parameters:
+      - in: query
+        name: available_from
+        schema:
+          type: string
+        description: Free from. ISO 8601 date (a whole local day) or datetime.
+      - in: query
+        name: available_to
+        schema:
+          type: string
+        description: Free until. ISO 8601 date (a whole local day) or datetime.
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: condition
+        schema:
+          type: string
+          enum:
+          - excellent
+          - fair
+          - good
+          - needs_repair
+        description: |-
+          * `excellent` - Excellent
+          * `good` - Good
+          * `fair` - Fair
+          * `needs_repair` - Needs repair
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - lab
+          - sports
+        description: |-
+          * `lab` - Lab
+          * `sports` - Sports
+      - in: query
+        name: location
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEquipmentList'
+          description: ''
+    post:
+      operationId: api_equipment_create
+      description: 'The equipment catalogue: everyone signed in browses it, desk staff
+        maintain it.'
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+  /api/equipment/{id}/:
+    get:
+      operationId: api_equipment_retrieve
+      description: 'The equipment catalogue: everyone signed in browses it, desk staff
+        maintain it.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    put:
+      operationId: api_equipment_update
+      description: 'The equipment catalogue: everyone signed in browses it, desk staff
+        maintain it.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Equipment'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    patch:
+      operationId: api_equipment_partial_update
+      description: 'The equipment catalogue: everyone signed in browses it, desk staff
+        maintain it.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEquipment'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Equipment'
+          description: ''
+    delete:
+      operationId: api_equipment_destroy
+      description: 'The equipment catalogue: everyone signed in browses it, desk staff
+        maintain it.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/equipment/{id}/availability/:
+    get:
+      operationId: api_equipment_availability_retrieve
+      description: When the item is busy between ``from`` and ``to`` (at most 120
+        days). Borrowers are not shown.
+      parameters:
+      - in: query
+        name: from
+        schema:
+          type: string
+        description: 'Window start: ISO date or datetime (default: today).'
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this equipment.
+        required: true
+      - in: query
+        name: to
+        schema:
+          type: string
+        description: 'Window end: ISO date (inclusive) or datetime (default: 28 days
+          on).'
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentAvailability'
+          description: ''
+  /api/locations/:
+    get:
+      operationId: api_locations_list
+      parameters:
+      - in: query
+        name: building
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLocationList'
+          description: ''
+    post:
+      operationId: api_locations_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Location'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Location'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+  /api/locations/{id}/:
+    get:
+      operationId: api_locations_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+    put:
+      operationId: api_locations_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Location'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Location'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+    patch:
+      operationId: api_locations_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLocation'
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+    delete:
+      operationId: api_locations_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/me/history/:
+    get:
+      operationId: api_me_history_list
+      description: The signed-in student's own rental history.
+      parameters:
+      - in: query
+        name: due_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: due_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: equipment
+        schema:
+          type: integer
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - lab
+          - sports
+        description: |-
+          * `lab` - Lab
+          * `sports` - Sports
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: overdue
+        schema:
+          type: boolean
+        description: Checked out and past the due time.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: start_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: start_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - checked_out
+          - reserved
+          - returned
+        description: |-
+          * `reserved` - Reserved
+          * `checked_out` - Checked out
+          * `returned` - Returned
+          * `cancelled` - Cancelled
+      - in: query
+        name: student
+        schema:
+          type: integer
+      - in: query
+        name: when
+        schema:
+          type: string
+          enum:
+          - current
+          - past
+          - upcoming
+        description: |-
+          current: checked out or inside its window; upcoming: reserved for later; past: finished.
+
+          * `current` - Current
+          * `upcoming` - Upcoming
+          * `past` - Past
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationList'
+          description: ''
+  /api/reservations/:
+    get:
+      operationId: api_reservations_list
+      description: |-
+        Students see and manage their own reservations; desk staff see all of them and check items in and out.
+
+        Reservations are never edited or deleted: they move through reserved -> checked_out -> returned
+        (or cancelled) with the actions below, which keeps the rental history intact.
+      parameters:
+      - in: query
+        name: due_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: due_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: equipment
+        schema:
+          type: integer
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - lab
+          - sports
+        description: |-
+          * `lab` - Lab
+          * `sports` - Sports
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: overdue
+        schema:
+          type: boolean
+        description: Checked out and past the due time.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: start_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: start_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - checked_out
+          - reserved
+          - returned
+        description: |-
+          * `reserved` - Reserved
+          * `checked_out` - Checked out
+          * `returned` - Returned
+          * `cancelled` - Cancelled
+      - in: query
+        name: student
+        schema:
+          type: integer
+      - in: query
+        name: when
+        schema:
+          type: string
+          enum:
+          - current
+          - past
+          - upcoming
+        description: |-
+          current: checked out or inside its window; upcoming: reserved for later; past: finished.
+
+          * `current` - Current
+          * `upcoming` - Upcoming
+          * `past` - Past
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationList'
+          description: ''
+    post:
+      operationId: api_reservations_create
+      description: |-
+        Students see and manage their own reservations; desk staff see all of them and check items in and out.
+
+        Reservations are never edited or deleted: they move through reserved -> checked_out -> returned
+        (or cancelled) with the actions below, which keeps the rental history intact.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Reservation'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: ''
+  /api/reservations/{id}/:
+    get:
+      operationId: api_reservations_retrieve
+      description: |-
+        Students see and manage their own reservations; desk staff see all of them and check items in and out.
+
+        Reservations are never edited or deleted: they move through reserved -> checked_out -> returned
+        (or cancelled) with the actions below, which keeps the rental history intact.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reservation.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: ''
+  /api/reservations/{id}/cancel/:
+    post:
+      operationId: api_reservations_cancel_create
+      description: Cancel a reservation that hasn't been collected. Students can cancel
+        their own.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reservation.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: ''
+  /api/reservations/{id}/checkout/:
+    post:
+      operationId: api_reservations_checkout_create
+      description: Hand the item to the student (staff). Allowed from the reservation's
+        start day until it is due.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reservation.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: ''
+  /api/reservations/{id}/return/:
+    post:
+      operationId: api_reservations_return_create
+      description: Take the item back (staff). ``return_condition`` also becomes the
+        item's condition.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reservation.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Return'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Return'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Return'
+        required: true
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: ''
+  /api/reservations/overdue/:
+    get:
+      operationId: api_reservations_overdue_retrieve
+      description: Items still checked out after their due time, longest overdue first
+        (staff).
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: api_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/students/:
+    get:
+      operationId: api_students_list
+      description: Student directory for desk staff, with each student's active and
+        overdue reservation counts.
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: student_number
+        schema:
+          type: string
+      - in: query
+        name: year
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStudentSummaryList'
+          description: ''
+  /api/students/{id}/:
+    get:
+      operationId: api_students_retrieve
+      description: Student directory for desk staff, with each student's active and
+        overdue reservation counts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this user.
+        required: true
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentSummary'
+          description: ''
+  /api/students/{id}/history/:
+    get:
+      operationId: api_students_history_list
+      description: Any student's rental history (staff).
+      parameters:
+      - in: query
+        name: due_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: due_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: equipment
+        schema:
+          type: integer
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: kind
+        schema:
+          type: string
+          enum:
+          - lab
+          - sports
+        description: |-
+          * `lab` - Lab
+          * `sports` - Sports
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: overdue
+        schema:
+          type: boolean
+        description: Checked out and past the due time.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: start_after
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: start_before
+        schema:
+          type: string
+          format: date-time
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - cancelled
+          - checked_out
+          - reserved
+          - returned
+        description: |-
+          * `reserved` - Reserved
+          * `checked_out` - Checked out
+          * `returned` - Returned
+          * `cancelled` - Cancelled
+      - in: query
+        name: student
+        schema:
+          type: integer
+      - in: query
+        name: when
+        schema:
+          type: string
+          enum:
+          - current
+          - past
+          - upcoming
+        description: |-
+          current: checked out or inside its window; upcoming: reserved for later; past: finished.
+
+          * `current` - Current
+          * `upcoming` - Upcoming
+          * `past` - Past
+      tags:
+      - api
+      security:
+      - tokenAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReservationList'
+          description: ''
+components:
+  schemas:
+    AuthToken:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        token:
+          type: string
+          readOnly: true
+      required:
+      - password
+      - token
+      - username
+    BusyRange:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/ReservationStatusEnum'
+        is_overdue:
+          type: boolean
+          description: Overdue items stay busy until returned, so end_at is the end
+            of the window.
+      required:
+      - end_at
+      - is_overdue
+      - start_at
+      - status
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 100
+          pattern: ^[-a-zA-Z0-9_]+$
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+      required:
+      - id
+      - kind
+      - name
+      - slug
+    ConditionEnum:
+      enum:
+      - excellent
+      - good
+      - fair
+      - needs_repair
+      type: string
+      description: |-
+        * `excellent` - Excellent
+        * `good` - Good
+        * `fair` - Fair
+        * `needs_repair` - Needs repair
+    CurrentUser:
+      type: object
+      description: The signed-in user, including the role the frontend uses to shape
+        its navigation.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        student_number:
+          type: string
+          readOnly: true
+          nullable: true
+        course:
+          type: string
+          maxLength: 120
+        year:
+          type: integer
+          maximum: 7
+          minimum: 1
+          nullable: true
+          description: Year of study.
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        role:
+          type: string
+          readOnly: true
+      required:
+      - email
+      - full_name
+      - id
+      - is_staff
+      - role
+      - student_number
+      - username
+    Equipment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        category:
+          type: integer
+        category_name:
+          type: string
+          readOnly: true
+        kind:
+          type: string
+          readOnly: true
+        location:
+          type: integer
+        location_name:
+          type: string
+          readOnly: true
+        building:
+          type: string
+          readOnly: true
+        asset_tag:
+          type: string
+          maxLength: 30
+        description:
+          type: string
+        condition:
+          $ref: '#/components/schemas/ConditionEnum'
+        is_active:
+          type: boolean
+          description: Inactive items are retired and cannot be reserved.
+        max_loan_days:
+          type: integer
+          maximum: 90
+          minimum: 1
+          description: Longest reservation allowed for this item, in days.
+        is_reservable:
+          type: boolean
+          readOnly: true
+        is_checked_out:
+          type: boolean
+          readOnly: true
+          default: false
+      required:
+      - asset_tag
+      - building
+      - category
+      - category_name
+      - id
+      - is_checked_out
+      - is_reservable
+      - kind
+      - location
+      - location_name
+      - name
+    EquipmentAvailability:
+      type: object
+      properties:
+        equipment:
+          type: integer
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        is_reservable:
+          type: boolean
+          description: False for retired items and items waiting for repair.
+        is_available:
+          type: boolean
+          description: Reservable and free for the whole window.
+        busy:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusyRange'
+      required:
+      - busy
+      - equipment
+      - from
+      - is_available
+      - is_reservable
+      - to
+    KindEnum:
+      enum:
+      - lab
+      - sports
+      type: string
+      description: |-
+        * `lab` - Lab
+        * `sports` - Sports
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        building:
+          type: string
+          maxLength: 120
+      required:
+      - building
+      - id
+      - name
+    PaginatedCategoryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    PaginatedEquipmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Equipment'
+    PaginatedLocationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+    PaginatedReservationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reservation'
+    PaginatedStudentSummaryList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentSummary'
+    PatchedCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 100
+          pattern: ^[-a-zA-Z0-9_]+$
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+    PatchedCurrentUser:
+      type: object
+      description: The signed-in user, including the role the frontend uses to shape
+        its navigation.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        student_number:
+          type: string
+          readOnly: true
+          nullable: true
+        course:
+          type: string
+          maxLength: 120
+        year:
+          type: integer
+          maximum: 7
+          minimum: 1
+          nullable: true
+          description: Year of study.
+        is_staff:
+          type: boolean
+          readOnly: true
+          title: Staff status
+          description: Designates whether the user can log into this admin site.
+        role:
+          type: string
+          readOnly: true
+    PatchedEquipment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        category:
+          type: integer
+        category_name:
+          type: string
+          readOnly: true
+        kind:
+          type: string
+          readOnly: true
+        location:
+          type: integer
+        location_name:
+          type: string
+          readOnly: true
+        building:
+          type: string
+          readOnly: true
+        asset_tag:
+          type: string
+          maxLength: 30
+        description:
+          type: string
+        condition:
+          $ref: '#/components/schemas/ConditionEnum'
+        is_active:
+          type: boolean
+          description: Inactive items are retired and cannot be reserved.
+        max_loan_days:
+          type: integer
+          maximum: 90
+          minimum: 1
+          description: Longest reservation allowed for this item, in days.
+        is_reservable:
+          type: boolean
+          readOnly: true
+        is_checked_out:
+          type: boolean
+          readOnly: true
+          default: false
+    PatchedLocation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        building:
+          type: string
+          maxLength: 120
+    Register:
+      type: object
+      description: Self-service sign-up, which always creates a student account.
+      properties:
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        student_number:
+          type: string
+          maxLength: 20
+        course:
+          type: string
+          maxLength: 120
+        year:
+          type: integer
+          maximum: 7
+          minimum: 1
+          description: Year of study.
+      required:
+      - course
+      - email
+      - first_name
+      - last_name
+      - password
+      - student_number
+      - username
+      - year
+    Registration:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/CurrentUser'
+      required:
+      - token
+      - user
+    Reservation:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+          description: 'Staff only: the student to reserve for. Students always reserve
+            for themselves.'
+        student_name:
+          type: string
+          readOnly: true
+        student_number:
+          type: string
+          readOnly: true
+        student_email:
+          type: string
+          format: email
+          readOnly: true
+        equipment:
+          type: integer
+        equipment_name:
+          type: string
+          readOnly: true
+        asset_tag:
+          type: string
+          readOnly: true
+        kind:
+          type: string
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        location_name:
+          type: string
+          readOnly: true
+        building:
+          type: string
+          readOnly: true
+        start_at:
+          type: string
+          format: date-time
+        due_at:
+          type: string
+          format: date-time
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ReservationStatusEnum'
+          readOnly: true
+        checked_out_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        checked_out_by_name:
+          type: string
+          readOnly: true
+        returned_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        returned_by_name:
+          type: string
+          readOnly: true
+        return_condition:
+          allOf:
+          - $ref: '#/components/schemas/ConditionEnum'
+          readOnly: true
+        notes:
+          type: string
+        is_overdue:
+          type: boolean
+          readOnly: true
+        returned_late:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - asset_tag
+      - building
+      - category_name
+      - checked_out_at
+      - checked_out_by_name
+      - created_at
+      - due_at
+      - equipment
+      - equipment_name
+      - id
+      - is_overdue
+      - kind
+      - location_name
+      - return_condition
+      - returned_at
+      - returned_by_name
+      - returned_late
+      - start_at
+      - status
+      - student_email
+      - student_name
+      - student_number
+    ReservationStatusEnum:
+      enum:
+      - reserved
+      - checked_out
+      - returned
+      - cancelled
+      type: string
+      description: |-
+        * `reserved` - Reserved
+        * `checked_out` - Checked out
+        * `returned` - Returned
+        * `cancelled` - Cancelled
+    Return:
+      type: object
+      properties:
+        return_condition:
+          $ref: '#/components/schemas/ConditionEnum'
+        notes:
+          type: string
+          default: ''
+      required:
+      - return_condition
+    StudentSummary:
+      type: object
+      description: A student in the staff directory, with their current load (annotated
+        by the viewset).
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        email:
+          type: string
+          format: email
+          title: Email address
+          maxLength: 254
+        student_number:
+          type: string
+          nullable: true
+          maxLength: 20
+        course:
+          type: string
+          maxLength: 120
+        year:
+          type: integer
+          maximum: 7
+          minimum: 1
+          nullable: true
+          description: Year of study.
+        active_reservations:
+          type: integer
+          readOnly: true
+          default: 0
+        overdue_reservations:
+          type: integer
+          readOnly: true
+          default: 0
+      required:
+      - active_reservations
+      - email
+      - full_name
+      - id
+      - overdue_reservations
+      - username
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
